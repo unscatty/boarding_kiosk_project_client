@@ -12,7 +12,7 @@ import AppLayout from './layouts/AppLayout.vue';
 
 @Component({
   components: {
-    AppLayout: AppLayout,
+    AppLayout,
   },
 })
 export default class App extends Vue {}

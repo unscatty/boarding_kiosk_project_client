@@ -11,7 +11,7 @@ export default {
   computed: {
     layout() {
       const layout = this.$route.meta.layout || defaultLayout;
-      console.log(layout);
+      // console.log(layout);
       return () => import(`@/layouts/${layout}.vue`);
     },
   },
