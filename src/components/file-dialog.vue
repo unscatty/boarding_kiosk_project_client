@@ -31,13 +31,9 @@ import Ui from '@/store/modules/ui';
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 import { extension } from '@/utils/text.util';
+import { FileResult } from '@/utils/file.util';
 
 const uiStore = namespace('Ui');
-
-export interface UploadResult {
-  file: File;
-  dataURL: string;
-}
 
 @Component
 export default class FileDialog extends Vue {
@@ -84,7 +80,7 @@ export default class FileDialog extends Vue {
   }
 
   @Emit()
-  selected(result: UploadResult) {
+  selected(result: FileResult) {
     return result;
   }
 
