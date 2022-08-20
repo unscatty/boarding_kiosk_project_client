@@ -1,4 +1,6 @@
-# test
+This repository contains a Vue SPA for the Automated Passenger Boarding Kiosk project
+
+The website is hosted on Azure Blob Storage static website at https://azureaiblob.z13.web.core.windows.net/
 
 ## Project setup
 ```
@@ -19,6 +21,3 @@ npm run build
 ```
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
