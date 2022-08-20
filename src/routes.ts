@@ -9,7 +9,7 @@ const routes: Array<RouteConfig> = [
     component: () => import('./pages/Home.vue'),
     name: 'home',
     meta: {
-      layout: 'LayoutHome',
+      layout: 'LayoutVuetifyDefault',
     },
   },
 ];

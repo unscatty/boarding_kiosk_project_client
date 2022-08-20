@@ -3,22 +3,34 @@
     <v-card>
       <v-card-title>{{ title }}</v-card-title>
       <v-card-text>
-        <v-img v-if="fileURL && extension(fileURL) !== '.pdf'" :src="fileURL" alt="" />
+        <v-img
+          v-show="
+            isImage &&
+            selectedFile &&
+            selectedFile.dataURL &&
+            extension(selectedFile.dataURL) !== '.pdf'
+          "
+          :src="selectedFile ? selectedFile.dataURL : ''"
+          alt=""
+        />
+        <video
+          v-show="isVideo && selectedFile && selectedFile.dataURL"
+          :src="selectedFile ? selectedFile.dataURL : ''"
+          controls
+          class="video"
+        ></video>
       </v-card-text>
       <v-card-actions>
         <v-btn color="secondary darken-1" text @click="cancel">Cancel</v-btn>
         <!-- <span v-if="filename">{{ filename }}</span>
         <br /> -->
         <v-spacer></v-spacer>
-        <input
-          ref="uploader"
-          class="d-none"
-          type="file"
-          accept="image/*,.pdf"
-          @change="onFileChanged"
-        />
+        <input ref="uploader" class="d-none" type="file" :accept="accept" @change="onFileChanged" />
         <v-btn color="success" @click="selectFile"
-          ><v-icon left> mdi-cloud-upload </v-icon>{{ filename || 'Select a file' }}</v-btn
+          ><v-icon left> mdi-cloud-upload </v-icon
+          >{{
+            (selectedFile && selectedFile.file && selectedFile.file.name) || 'Select a file'
+          }}</v-btn
         >
         <v-btn color="secondary darken-1" text @click="upload">OK</v-btn>
       </v-card-actions>
@@ -27,13 +39,9 @@
 </template>
 
 <script lang="ts">
-import Ui from '@/store/modules/ui';
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
 import { extension } from '@/utils/text.util';
 import { FileResult } from '@/utils/file.util';
-
-const uiStore = namespace('Ui');
 
 @Component
 export default class FileDialog extends Vue {
@@ -43,13 +51,20 @@ export default class FileDialog extends Vue {
   @Prop({ default: false })
   showDialog: boolean;
 
-  file: File;
+  @Prop({ default: false })
+  isImage: boolean;
 
-  fileURL = '';
-  filename = '';
+  @Prop({ default: false })
+  isVideo: boolean;
 
-  @uiStore.Action
-  showToast: typeof Ui.prototype.showToast;
+  @Prop({ type: String, required: false, default: 'image/*,.pdf' })
+  accept: string;
+
+  @Prop({ type: Object, required: false, default: { file: null, dataURL: '' } })
+  selectedFile: FileResult = {
+    file: null,
+    dataURL: '',
+  };
 
   extension = extension;
 
@@ -64,9 +79,10 @@ export default class FileDialog extends Vue {
   }
 
   reset() {
-    this.fileURL = '';
-    this.file = null;
-    this.filename = '';
+    this.selectedFile = {
+      file: null,
+      dataURL: '',
+    };
   }
 
   cancel() {
@@ -85,10 +101,7 @@ export default class FileDialog extends Vue {
   }
 
   upload() {
-    return this.selected({
-      file: this.file,
-      dataURL: this.fileURL,
-    });
+    return this.selected(this.selectedFile);
   }
 
   selectFile() {
@@ -102,44 +115,32 @@ export default class FileDialog extends Vue {
     if (files && files[0]) {
       const selectedFile = files[0];
 
-      this.fileURL = URL.createObjectURL(selectedFile);
-      this.file = selectedFile;
-      this.filename = selectedFile.name;
+      this.selectedFile.file = selectedFile;
+      this.selectedFile.dataURL = URL.createObjectURL(selectedFile);
     }
-  }
-
-  // async crop() {
-  //   const result = await this.getCropResult();
-
-  //   this.selected(result);
-
-  //   // Close
-  //   this.show = false;
-  // }
-
-  // async getCropResult(): Promise<CropResult> {
-  //   const result: CropResult = {
-  //     blob: undefined,
-  //     imageSrc: '',
-  //   };
-
-  //   const { canvas } = this.cropperRef.getResult();
-
-  //   result.blob = await canvasToBlob(canvas, this.imageType || undefined);
-  //   result.imageSrc = URL.createObjectURL(result.blob);
-
-  //   return result;
-  // }
-
-  onError() {
-    // Show error message
-    this.showToast({
-      text: 'No se puede recortar esta imagen',
-      color: 'error',
-    });
-
-    // Close dialog
-    this.show = false;
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.video {
+  max-width: min-content;
+  max-height: min-content;
+
+  @supports (max-width: -moz-available) {
+    max-width: -moz-available;
+  }
+
+  @supports (max-height: -moz-available) {
+    max-height: -moz-available;
+  }
+
+  @supports (max-width: -webkit-fill-available) {
+    max-width: -webkit-fill-available;
+  }
+
+  @supports (max-height: -webkit-fill-available) {
+    max-height: -webkit-fill-available;
+  }
+}
+</style>
